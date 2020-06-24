@@ -1,66 +1,65 @@
-<?php require('db.php'); ?>
-
-<!DOCTYPE html>
-<html>
-<head>
-	<style>
-		div {
-			border-style: solid;
-			border-color: #ecb535;
-			border-width: 3px;
-			width: 350px;
-			height: 200px;
-			border-radius: 50px;
-		}
-	</style>
-	<title>M711Forum - Register</title>
-</head>
-<body style="background-color: #eee5e3">
-	<h1 style="border: solid #ecb535; color: #2e4a62; text-align: center">M711 Forum</h1>
-	<?php
-
-		if(isset($_SESSION['username'])) {
-			header("location: index.php");
-		} else {
-			echo "Already a member? <a href='login.php'>Click here</a></br></br>";
-			echo "<center><form method='post' action='register.php'><div>";
-			echo "<label>Username:</label></br><input type='text' name='unameinput'></br>";
-			echo "<label>email:</label></br><input type='text' name='uemailinput'></br>";
-			echo "<label>password:</label></br><input type='password' name='upasswordinput'></br>";
-			echo "<label>repeat password:</label></br><input type='password' name='reupasswordinput'></br>";
-			echo "</br><input type='submit' name='registerbtn' value='Register' style='width: 80px; background-color: orange'>";
-			echo "</form></div>";
-		}
-
-		if(isset($_POST['registerbtn'])) {
-			if(empty($_POST['unameinput'])) {
-				echo "<p style='color:red'>Username is required.</p>";
-			}
-			if(empty($_POST['uemailinput'])) {
-				echo "<p style='color:red'>Email is required.</p>";
-			}
-			if(empty($_POST['upasswordinput'])) {
-				echo "<p style='color:red'>Password is required.</p>";
-			}
-			if(empty($_POST['reupasswordinput'])) {
-				echo "<p style='color:red'>repeating password is required.</p>";
-			}
-			if($_POST['reupasswordinput'] != $_POST['upasswordinput'])
+<?php
+require('database.php');
+if(isset($_SESSION['username'])){
+	header('Location: index.php');
+}
+require('header.php');
+echo "<div class='box'>";
+echo "<h2>M711D - Register:</h2>";
+echo "<p>Fill in the blanks to create an account, Or incase you've got an account you can <a href='register.html'>Login here</a>.</p>";
+echo "<form method='POST' action=register.php>
+			<table>
+					<tr>
+						<td><p for=username>Username:</label></td>
+						<td>
+							<input placeholder='Enter your username' type='text' name='username' id='username' required>
+						</td>
+					</tr>
+					<tr>
+						<td><p for=password>Password:</p></td>
+						<td><input placeholder='Enter your password' type='password' name='password' id='password' required></td>
+					</tr>
+					<tr>
+						<td><p for=password>Verify password:</p></td>
+						<td><input placeholder='Retype your password' type='password' name='passverif' id='passverif' required></td>	
+					</tr>
+					<tr>
+						<td><p for=email>Email:</td>
+						<td><input placeholder='Write down your email' type='email' name='email' id='email'></td>
+					</tr>
+					<tr>
+						<td><p for=emailverif>Email verification:</td>
+						<td><input placeholder='Rewrite your email please' type='email' name='emailverif' id='emailverif'></td>
+					</tr>
+					<tr>
+						<td colspan=2>
+							<input style='margin:10px; background-color:orange' type='submit' value='Click to register' name=registersmtbtn>
+						</td>
+					</tr>
+			</table>
+		</form>";
+echo "</div>";
+$today = date('y/m/d');
+if(isset($_POST['registersmtbtn'])){
+	if($_POST['password'] == $_POST['passverif'] && $_POST['email'] == $_POST['emailverif']) {
+		$result = $db->query("SELECT * FROM users WHERE username = '$_POST[username]' LIMIT 1");
+		if(mysqli_num_rows($result) < 1) {
+			$result = $db->query("SELECT * FROM users WHERE email = '$_POST[email]' LIMIT 1");
+			if(mysqli_num_rows($result) < 1)
 			{
-				echo "<p style='color:red'>The passwords doesn't match.";
+				$query = "INSERT INTO users (username, email, password, registerDate, rank) VALUES ('$_POST[username]', '$_POST[email]', '$_POST[password]', '$today', '2')";
+				mysqli_query($db,$query);
+				$_SESSION['username'] = $_POST['username'];
+				header("Location: index.php");
+			} else {
+				echo "Email already in use.";
 			}
-
-			if(!empty($_POST['unameinput']) && !empty($_POST['uemailinput']) && !empty($_POST['upasswordinput']) && !empty($_POST['reupasswordinput']) && $_POST['upasswordinput'] == $_POST['reupasswordinput']) {
-				$username = $_POST['unameinput'];
-				$email = $_POST['uemailinput'];
-				$password = $_POST['upasswordinput'];
-				$query = "INSERT INTO users(username, email, password) VALUES ('$username', '$email', '$password')";
-				mysqli_query($conn, $query);
-				$_SESSION['username'] = $username;
-				header("location:index.php");
-			}
+		} else {
+			echo "username already in use.";
 		}
-
-	?>
-</body>
-</html>
+	} else {
+		echo "Passwords/Emails don't match.";
+	}
+}
+require('footer.php');
+?>

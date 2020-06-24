@@ -1,66 +1,48 @@
-<?php require('db.php'); ?>
+<?php
+	require('database.php');
 
-<!DOCTYPE html>
-<html>
-<head>
-	<title>M711Forum - Login</title>
-	<style>
-		div {
-			border-style: solid;
-			border-color: #ecb535;
-			border-width: 3px;
-			width: 350px;
-			height: 200px;
-			border-radius: 50px;
-  		}
-  		input {
-  			width: 300px;
-  			height: 30px;
-  			border-radius: 10px;
-  		}
+	if(isset($_SESSION['username']))
+	{	
+		header('Location:index.php');
+		exit();
+	}
+	require('header.php');
+	echo "<div class='box'>";
+	echo "<h2>M711 - Login</h2>";
+	echo "<p>In order to play the game you need to have an account, login to your account or <a href='register.php'>register here</a>.</p>";
+	echo "<form method='post'>";
+	echo "<table>
+			<tr>
+				<td><p for=usernameinput>Username:</label></td>
+				<td>
+					<input placeholder='Enter your username'type='text' name='usernameinput' required>
+				</td>
+			</tr>
+			<tr>
+				<td><p for=passwordinput>Password:</p></td>
+				<td><input placeholder='Enter your password' type='password' name='passwordinput' required></td>
+			</tr>
+			<tr>
+				<td colspan=2>
+					<input style='margin:10px; background-color:orange' type='submit' value='Click to login' name=loginsubmit>
+				</td>
+			</tr>
+		</table>";
+	echo "</form>";
+	echo "</div>";
 
-	</style>
-</head>
-<body style="background-color: #eee5e3">
-	<h1 style="border: solid #ecb535; color: #2e4a62; text-align: center">M711 Forum</h1>
-	<?php
-		if(!isset($_SESSION["username"])) {
-			echo "";
-			echo "<p>Don't have an account? <a href='register.php'>Click here</a></p>";
-			echo "<form method='post>' action='index.php'>";
-			echo "<button name='homepagebtn' type='submit' style=width:100px;height:30px;background-color:#ce9613>Home page</button>";
-			echo "</form></br></br>";
-
-			echo "<center><form method='post' action='login.php'><div><br><label>Username:</label><br><input type='text' name='usernameinput''></br></br>";
-			echo "<label>Password:</label><br><input type='password' name='passwordinput'>";
-			echo "<br><br><input type='submit' value='Login' name='loginsubmitbtn'>";
-		}  else {
-			header("location: index.php");
+	if(isset($_POST['loginsubmit'])) {
+		$row = $db->query("SELECT * FROM users WHERE username = '$_POST[usernameinput]' AND password = '$_POST[passwordinput]' LIMIT 1");
+		if(mysqli_num_rows($row) < 1) {
+			//
+			print("<p style='color=red;'>We could not find an account with that username and password.</p>");
+		} else {
+			$user = $row->fetch_assoc();
+			session_start();
+			$_SESSION['username'] = $user['username'];
+			header('Location: index.php');
 		}
-		if(isset($_POST['registerbtn']) && !isset($_SESSION["username"])) {
-			header('register.php');
-		}
+	}
 
-		if(isset($_POST['loginsubmitbtn'])) {
-			if(empty($_POST['usernameinput'])) {
-				echo "<p style='color: red;'>Username is required.</p>";
-			}
-			if(empty($_POST['passwordinput'])) {
-				echo "<p style='color:red';>Password is required.</p>";
-			}
-			else if (!empty($_POST['passwordinput']) && !empty($_POST['usernameinput'])){
-				$uname = $_POST['usernameinput'];
-				$upassword = $_POST['passwordinput'];
-				$query = "SELECT * FROM users WHERE username='$uname' AND password='$upassword'";
-				$result = mysqli_query($conn, $query);
-				if(mysqli_num_rows($result) == 1) {
-					$_SESSION['username'] = $uname;
-					header("location: index.php");
-				} else {
-					echo "<p style='color:red'>Username/password combination doesn't match.</p>";
-				}
-			}
-		}
-	?>
-</body>
-</html>
+	require('footer.php');
+?>
