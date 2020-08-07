@@ -18,7 +18,7 @@
 		$result = $result->fetch_assoc();
 		$restriction = $result['restriction'];
 
-		if($permission > $restriction) {
+		if($permission > $restriction || $permission == -1) {
 			$forum_page->create_html_form("post", '');
 			$forum_page->create_html_button("post_button", "Start a new Thread");
 			$forum_page->close_html_form();

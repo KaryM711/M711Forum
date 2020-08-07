@@ -1,7 +1,7 @@
 <!--Footer-->
 
 		</div>
-		<footer><div id='copyright'>Copyright &copy2020 M711Forum by adri711.</div></footer>
+		<footer><div id='copyright'>Copyright &copy2020 m711software by adri711.</div></footer>
 		</div>
 	</body>
 </html>
